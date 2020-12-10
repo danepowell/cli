@@ -6,9 +6,9 @@ use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
+use AcquiaCloudApi\Connector\Client;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -42,7 +42,7 @@ class PushDatabaseCommand extends PullCommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $destination_environment = $this->determineEnvironment($input, $output);
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
+    $acquia_cloud_client = Client::factory($this->cloudApiConnector);
     $database = $this->determineSourceDatabase($acquia_cloud_client, $destination_environment);
 
     $answer = $this->io->confirm("Overwrite the <bg=cyan;options=bold>{$database->name}</> database on <bg=cyan;options=bold>{$destination_environment->name}</> with a copy of the database from the current machine?");

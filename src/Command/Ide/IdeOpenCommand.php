@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Command\Ide;
 
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
+use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Ides;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -32,7 +33,7 @@ class IdeOpenCommand extends IdeCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
+    $acquia_cloud_client = Client::factory($this->cloudApiConnector);
     $cloud_application_uuid = $this->determineCloudApplication();
     $ides_resource = new Ides($acquia_cloud_client);
     $ide = $this->promptIdeChoice("Please select the IDE you'd like to open:", $ides_resource, $cloud_application_uuid);

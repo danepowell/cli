@@ -5,6 +5,7 @@ namespace Acquia\Cli\Command\Ide;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LoopHelper;
 use Acquia\Cli\Output\Checklist;
+use AcquiaCloudApi\Connector\Client as CloudApiClient;
 use AcquiaCloudApi\Endpoints\Ides;
 use AcquiaCloudApi\Response\IdeResponse;
 use AcquiaCloudApi\Response\OperationResponse;
@@ -57,7 +58,7 @@ class IdeCreateCommand extends IdeCommandBase {
 
     $ide_label = $this->io->ask('Please enter a label for your Cloud IDE');
 
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
+    $acquia_cloud_client = CloudApiClient::factory($this->cloudApiConnector);
     $ides_resource = new Ides($acquia_cloud_client);
 
     // Create it.

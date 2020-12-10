@@ -5,7 +5,6 @@ namespace Acquia\Cli\Tests;
 use Acquia\Cli\Command\ClearCacheCommand;
 use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
 use Acquia\Cli\DataStore\YamlStore;
-use Acquia\Cli\Helpers\ClientService;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
@@ -190,8 +189,6 @@ abstract class TestBase extends TestCase {
     $this->amplitudeProphecy = $this->prophet->prophesize(Amplitude::class);
     $this->clientProphecy = $this->prophet->prophesize(Client::class);
     $this->clientProphecy->addOption('headers', ['User-Agent' => 'acli/UNKNOWN', 'Accept' => 'application/json']);
-    $this->clientServiceProphecy = $this->prophet->prophesize(ClientService::class);
-    $this->clientServiceProphecy->getClient()->willReturn($this->clientProphecy->reveal());
     $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
 
     $this->setIo($input, $output);

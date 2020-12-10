@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command\Ide;
 
+use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Ides;
 use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputInterface;
@@ -32,7 +33,7 @@ class IdeInfoCommand extends IdeCommandBase {
   protected function execute(InputInterface $input, OutputInterface $output) {
     $application_uuid = $this->determineCloudApplication();
 
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
+    $acquia_cloud_client = Client::factory($this->cloudApiConnector);
     $ides_resource = new Ides($acquia_cloud_client);
 
     $ide = $this->promptIdeChoice("Please select an IDE to get more information:", $ides_resource, $application_uuid);

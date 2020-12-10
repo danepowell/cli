@@ -3,10 +3,10 @@
 namespace Acquia\Cli\Command\Api;
 
 use Acquia\Cli\DataStore\YamlStore;
-use Acquia\Cli\Helpers\ClientService;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
+use AcquiaCloudApi\Connector\Connector;
 use AcquiaLogstream\LogstreamManager;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
@@ -74,9 +74,9 @@ class ApiCommandHelper {
   protected $repoRoot;
 
   /**
-   * @var \Acquia\Cli\Helpers\ClientService
+   * @var \AcquiaCloudApi\Connector\Connector
    */
-  protected $cloudApiClientService;
+  protected $cloudApiConnector;
 
   /**
    * @var \AcquiaLogstream\LogstreamManager
@@ -104,7 +104,7 @@ class ApiCommandHelper {
    * @param \Zumba\Amplitude\Amplitude $amplitude
    * @param string $acliConfigFilepath
    * @param string $repoRoot
-   * @param \Acquia\Cli\Helpers\ClientService $cloudApiClientService
+   * @param \AcquiaCloudApi\Connector\Connector $cloudApiConnector
    * @param \AcquiaLogstream\LogstreamManager $logstreamManager
    * @param \Acquia\Cli\Helpers\SshHelper $sshHelper
    * @param string $sshDir
@@ -118,7 +118,7 @@ class ApiCommandHelper {
     Amplitude $amplitude,
     string $acliConfigFilepath,
     string $repoRoot,
-    ClientService $cloudApiClientService,
+    Connector $cloudApiConnector,
     LogstreamManager $logstreamManager,
     SshHelper $sshHelper,
     string $sshDir
@@ -131,7 +131,7 @@ class ApiCommandHelper {
     $this->amplitude = $amplitude;
     $this->acliConfigFilepath = $acliConfigFilepath;
     $this->repoRoot = $repoRoot;
-    $this->cloudApiClientService = $cloudApiClientService;
+    $this->cloudApiConnector = $cloudApiConnector;
     $this->logstreamManager = $logstreamManager;
     $this->sshHelper = $sshHelper;
     $this->sshDir = $sshDir;
@@ -481,7 +481,7 @@ class ApiCommandHelper {
         $command_name = 'api:' . $schema['x-cli-name'];
         $command = new ApiCommandBase($this->cloudConfigFilepath, $this->localMachineHelper, $this->datastoreCloud,
           $this->acliDatastore, $this->telemetryHelper, $this->amplitude, $this->acliConfigFilepath, $this->repoRoot,
-          $this->cloudApiClientService, $this->logstreamManager, $this->sshHelper, $this->sshDir);
+          $this->cloudApiConnector, $this->logstreamManager, $this->sshHelper, $this->sshDir);
         $command->setName($command_name);
         $command->setDescription($schema['summary']);
         $command->setMethod($method);

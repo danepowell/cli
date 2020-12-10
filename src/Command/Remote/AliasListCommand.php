@@ -3,12 +3,11 @@
 namespace Acquia\Cli\Command\Remote;
 
 use Acquia\Cli\Command\CommandBase;
+use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use Symfony\Component\Console\Helper\Table;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -31,7 +30,7 @@ class AliasListCommand extends CommandBase {
    * {@inheritdoc}
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
+    $acquia_cloud_client = Client::factory($this->cloudApiConnector);
     $applications_resource = new Applications($acquia_cloud_client);
     $cloud_application_uuid = $this->determineCloudApplication();
     $customer_application = $applications_resource->get($cloud_application_uuid);

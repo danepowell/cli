@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command\Remote;
 
+use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Account;
 use PharData;
 use RecursiveIteratorIterator;
@@ -39,7 +40,7 @@ class AliasesDownloadCommand extends SshCommand {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
+    $acquia_cloud_client = Client::factory($this->cloudApiConnector);
     $alias_version = $this->promptChooseDrushAliasVersion();
     $acquia_cloud_client->addQuery('version', $alias_version);
     $account_adapter = new Account($acquia_cloud_client);

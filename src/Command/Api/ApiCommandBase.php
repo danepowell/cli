@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Command\Api;
 
 use Acquia\Cli\Command\CommandBase;
+use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -65,7 +66,7 @@ class ApiCommandBase extends CommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     // Build query from non-null options.
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
+    $acquia_cloud_client = Client::factory($this->cloudApiConnector);
     if ($this->queryParams) {
       foreach ($this->queryParams as $key => $param_spec) {
         // We may have a queryParam that is used in the path rather than the query string.

@@ -5,6 +5,8 @@ namespace Acquia\Cli\Helpers;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\DataStore\YamlStore;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
+use AcquiaCloudApi\Connector\Client;
+use AcquiaCloudApi\Connector\Connector;
 use AcquiaCloudApi\Endpoints\Account;
 use drupol\phposinfo\OsInfo;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
@@ -31,9 +33,9 @@ class TelemetryHelper {
   private $acliDatastore;
 
   /**
-   * @var \Acquia\Cli\Helpers\ClientService
+   * @var \AcquiaCloudApi\Connector\Connector
    */
-  private $cloudApi;
+  private $cloudApiConnector;
 
   /**
    * @var \Webmozart\KeyValueStore\JsonFileStore
@@ -45,20 +47,20 @@ class TelemetryHelper {
    *
    * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
-   * @param \Acquia\Cli\Helpers\ClientService $cloud_api
+   * @param \AcquiaCloudApi\Connector\Connector $cloudApiConnector
    * @param \Acquia\Cli\DataStore\YamlStore $datastoreAcli
    * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreCloud
    */
   public function __construct(
     InputInterface $input,
     OutputInterface $output,
-    ClientService $cloud_api,
+    Connector $cloudApiConnector,
     YamlStore $datastoreAcli,
     JsonFileStore $datastoreCloud
   ) {
     $this->input = $input;
     $this->output = $output;
-    $this->cloudApi = $cloud_api;
+    $this->cloudApiConnector = $cloudApiConnector;
     $this->datastoreCloud = $datastoreCloud;
     $this->acliDatastore = $datastoreAcli;
   }
@@ -166,7 +168,7 @@ class TelemetryHelper {
    */
   protected function getDefaultUserData(): array {
     // @todo Cache this!
-    $account = new Account($this->cloudApi->getClient());
+    $account = new Account(Client::factory($this->cloudApiConnector));
     $user = [
       'uuid' => $account->get()->uuid,
       'is_acquian' => substr($account->get()->mail, -10, 10) === 'acquia.com'

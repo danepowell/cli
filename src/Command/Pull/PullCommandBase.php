@@ -83,7 +83,7 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function pullDatabase(InputInterface $input, OutputInterface $output): void {
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
+    $acquia_cloud_client = Client::factory($this->cloudApiConnector);
     $source_environment = $this->determineEnvironment($input, $output);
     $database = $this->determineSourceDatabase($acquia_cloud_client, $source_environment);
     $this->checklist->addItem('Importing Drupal database copy from the Cloud Platform');
@@ -571,7 +571,7 @@ abstract class PullCommandBase extends CommandBase {
       $cloud_application_uuid = $this->determineCloudApplication();
       $cloud_application = $this->getCloudApplication($cloud_application_uuid);
       $output->writeln('Using Cloud Application <options=bold>' . $cloud_application->name . '</>');
-      $acquia_cloud_client = $this->cloudApiClientService->getClient();
+      $acquia_cloud_client = Client::factory($this->cloudApiConnector);
       $chosen_environment = $this->promptChooseEnvironment($acquia_cloud_client, $cloud_application_uuid);
     }
     $this->logger->debug("Using environment {$chosen_environment->label} {$chosen_environment->uuid}");

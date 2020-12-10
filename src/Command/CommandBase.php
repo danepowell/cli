@@ -5,13 +5,13 @@ namespace Acquia\Cli\Command;
 use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
 use Acquia\Cli\DataStore\YamlStore;
 use Acquia\Cli\Exception\AcquiaCliException;
-use Acquia\Cli\Helpers\ClientService;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
+use AcquiaCloudApi\Connector\Connector;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Ides;
@@ -128,9 +128,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected $repoRoot;
 
   /**
-   * @var \Acquia\Cli\Helpers\ClientService
+   * @var \AcquiaCloudApi\Connector\Connector
    */
-  protected $cloudApiClientService;
+  protected $cloudApiConnector;
 
   /**
    * @var \AcquiaLogstream\LogstreamManager
@@ -168,7 +168,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @param \Zumba\Amplitude\Amplitude $amplitude
    * @param string $acliConfigFilepath
    * @param string $repoRoot
-   * @param \Acquia\Cli\Helpers\ClientService $cloudApiClientService
+   * @param \AcquiaCloudApi\Connector\Connector $cloudApiConnector
    * @param \AcquiaLogstream\LogstreamManager $logstreamManager
    * @param \Acquia\Cli\Helpers\SshHelper $sshHelper
    * @param string $sshDir
@@ -182,7 +182,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     Amplitude $amplitude,
     string $acliConfigFilepath,
     string $repoRoot,
-    ClientService $cloudApiClientService,
+    Connector $cloudApiConnector,
     LogstreamManager $logstreamManager,
     SshHelper $sshHelper,
     string $sshDir
@@ -195,7 +195,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->amplitude = $amplitude;
     $this->acliConfigFilepath = $acliConfigFilepath;
     $this->repoRoot = $repoRoot;
-    $this->cloudApiClientService = $cloudApiClientService;
+    $this->cloudApiConnector = $cloudApiConnector;
     $this->logstreamManager = $logstreamManager;
     $this->sshHelper = $sshHelper;
     $this->sshDir = $sshDir;
@@ -675,7 +675,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
 
     $application_uuid = $this->determineCloudApplication();
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
+    $acquia_cloud_client = Client::factory($this->cloudApiConnector);
     $environment = $this->promptChooseEnvironment($acquia_cloud_client, $application_uuid);
 
     return $environment->uuid;
@@ -712,7 +712,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws \Exception
    */
   protected function doDetermineCloudApplication() {
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
+    $acquia_cloud_client = Client::factory($this->cloudApiConnector);
 
     if ($this->input->hasArgument('applicationUuid') && $this->input->getArgument('applicationUuid')) {
       $cloud_application_uuid = $this->input->getArgument('applicationUuid');
@@ -869,7 +869,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws \Exception
    */
   protected function getCloudApplication($application_uuid): ApplicationResponse {
-    $applications_resource = new Applications($this->cloudApiClientService->getClient());
+    $applications_resource = new Applications(Client::factory($this->cloudApiConnector));
 
     return $applications_resource->get($application_uuid);
   }
@@ -881,7 +881,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws \Exception
    */
   protected function getCloudEnvironment($environment_id): EnvironmentResponse {
-    $environment_resource = new Environments($this->cloudApiClientService->getClient());
+    $environment_resource = new Environments(Client::factory($this->cloudApiConnector));
 
     return $environment_resource->get($environment_id);
   }
@@ -964,7 +964,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     [$application_alias, $environment_alias] = $site_env_parts;
     $this->logger->debug("Searching for an environment matching alias $application_alias.$environment_alias.");
     $customer_application = $this->getApplicationFromAlias($application_alias);
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
+    $acquia_cloud_client = Client::factory($this->cloudApiConnector);
     $acquia_cloud_client->clearQuery();
     $environments_resource = new Environments($acquia_cloud_client);
     $environments = $environments_resource->getAll($customer_application->uuid);
@@ -1007,7 +1007,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function doGetApplicationFromAlias($application_alias) {
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
+    $acquia_cloud_client = Client::factory($this->cloudApiConnector);
     $acquia_cloud_client->addQuery('filter', 'hosting=@*' . $application_alias);
     $customer_applications = $acquia_cloud_client->request('get', '/applications');
     $site_prefix = '';
@@ -1045,7 +1045,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return \stdClass|null
    */
   protected function findIdeSshKeyOnCloud($ide_uuid): ?\stdClass {
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
+    $acquia_cloud_client = Client::factory($this->cloudApiConnector);
     $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
     $ides_resource = new Ides($acquia_cloud_client);
     $ide = $ides_resource->get($ide_uuid);

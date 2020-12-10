@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command\Ide;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
+use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Ides;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Input\InputInterface;
@@ -55,7 +56,7 @@ class IdeShareCommand extends CommandBase {
     }
 
     $share_uuid = $this->localMachineHelper->readFile($this->getShareCodeFilepaths()[0]);
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
+    $acquia_cloud_client = Client::factory($this->cloudApiConnector);
     $ides_resource = new Ides($acquia_cloud_client);
     $ide = $ides_resource->get($this::getThisCloudIdeUuid());
 

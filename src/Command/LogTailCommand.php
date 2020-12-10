@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command;
 
+use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Logs;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -31,7 +32,7 @@ class LogTailCommand extends CommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $environment_id = $this->determineCloudEnvironment();
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
+    $acquia_cloud_client = Client::factory($this->cloudApiConnector);
     $logs = $this->promptChooseLogs($acquia_cloud_client, $environment_id);
     $log_types = array_map(function ($log) {
       return $log->type;
