@@ -49,6 +49,7 @@ else {
     }
   }
 }
+require '/Users/dane.powell/src/acquia/plugins/cli-hello-world/vendor/autoload.php';
 if (!isset($loader)) {
     throw new AcquiaCliException('Unable to find autoload.php');
 }

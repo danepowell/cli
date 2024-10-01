@@ -52,7 +52,7 @@ class Kernel extends BaseKernel
         $finder = new Finder();
         $extensions = $finder->files()
             ->in([
-                __DIR__ . '/../../',
+                '/Users/dane.powell/src/acquia/plugins',
             ])
             ->depth(1)
             ->name('acli.services.yml');
